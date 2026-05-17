@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Tracker</title>
+</head>
+<body>
+    <h1>Tasks</h1>
+
+    <button onclick="loadTasks()">Load Tasks</button>
+
+    <ul id="taskList"></ul>
+
+    <script>
+        async function loadTasks()
+        {
+            const res = await fetch('/api/tasks');
+            const tasks = await res.json();
+
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
+
+            tasks.forEach(t => {
+                const li = document.createElement('li');
+                li.textContent = `${ t.title } (done: ${ t.isCompleted })`;
+                list.appendChild(li);
+
+            })
+        }
+    </script>
+</body>
+</html>

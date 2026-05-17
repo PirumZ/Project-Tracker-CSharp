@@ -8,8 +8,12 @@ namespace Project_Tracker_C_.Controllers
     [Route("api/tasks")]
     public class TasksController : ControllerBase
     {
-        //private static List<TaskItem> _tasks = new List<TaskItem>();
-        private readonly TaskService _service = new TaskService();
+        private readonly TaskService _service;
+
+        public TasksController(TaskService service) 
+        {
+            _service = service;
+        }
 
         [HttpGet]
         public IActionResult Get()

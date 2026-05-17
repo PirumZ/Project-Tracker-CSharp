@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Project_Tracker_C_.Data;
+using Project_Tracker_C_.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
 options.UseSqlite("Data Source=tasks.db"));
-
+builder.Services.AddScoped<TaskService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -22,7 +23,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseStaticFiles();
 app.UseAuthorization();
 
 app.MapControllers();
