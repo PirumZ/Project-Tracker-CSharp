@@ -1,5 +1,7 @@
 ﻿using Project_Tracker_C_.Models;
 using Project_Tracker_C_.Data;
+using Project_Tracker_C_.Dtos;
+using Microsoft.EntityFrameworkCore;
 
 namespace Project_Tracker_C_.Services
 {
@@ -12,43 +14,64 @@ namespace Project_Tracker_C_.Services
             _context = context;
         }
 
-        public List<TaskItem> GetAll() 
+        public async Task<List<TaskReadDto>> GetAll() 
         {
-            return _context.Tasks.ToList();
+            var tasks = await _context.Tasks.ToListAsync();
+
+            return tasks.Select(t => new TaskReadDto
+            {
+                Id = t.Id,
+                Title = t.Title,
+                IsCompleted = t.IsCompleted
+            }).ToList();
         }
 
-        public TaskItem Create(TaskItem task) 
+        public async Task<TaskReadDto> Create(TaskCreateDto dto) 
         {
+            var task = new TaskItem
+            { Title = dto.Title, IsCompleted = false };
+
             _context.Tasks.Add(task);
-            _context.SaveChanges();
-            return task;
+            await _context.SaveChangesAsync();
+
+            return new TaskReadDto
+            {
+                Id = task.Id,
+                Title = task.Title,
+                IsCompleted = task.IsCompleted
+            };
         }
 
-        public TaskItem? GetById(int id) 
+        public async Task<TaskItem?> GetById(int id) 
         {
-            return _context.Tasks.FirstOrDefault(t => t.Id == id);
+            return await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
         }
 
-        public TaskItem? Update(int id, TaskItem updatedTask) 
+        public async Task<TaskReadDto?> Update(int id, TaskUpdateDto dto) 
         {
-            var task = GetById(id);
+            var task = await GetById(id);
             if (task == null) { return null; }
 
-            task.Title = updatedTask.Title;
-            task.IsCompleted = updatedTask.IsCompleted;
+            task.Title = dto.Title;
+            task.IsCompleted = dto.IsCompleted;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return task;
+            return new TaskReadDto
+            {
+                Id = task.Id,
+                Title = task.Title,
+                IsCompleted = task.IsCompleted
+            };
         }
 
-        public bool Delete(int id) 
+        public async Task<bool> Delete(int id) 
         {
-            TaskItem task = GetById(id);
+            TaskItem? task = await GetById(id);
             if (task == null) { return false; }
 
             _context.Tasks.Remove(task);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return true;
         }
