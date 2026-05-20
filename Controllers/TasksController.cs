@@ -18,9 +18,9 @@ namespace Project_Tracker_C_.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(bool? completed)
         {
-            var tasks = await _service.GetAll();
+            var tasks = await _service.GetAll(completed);
             return Ok(tasks);
         }
 

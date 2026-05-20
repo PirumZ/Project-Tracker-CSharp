@@ -2,6 +2,7 @@
 using Project_Tracker_C_.Data;
 using Project_Tracker_C_.Dtos;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
 namespace Project_Tracker_C_.Services
 {
@@ -14,9 +15,16 @@ namespace Project_Tracker_C_.Services
             _context = context;
         }
 
-        public async Task<List<TaskReadDto>> GetAll() 
+        public async Task<List<TaskReadDto>> GetAll(bool? completed) 
         {
-            var tasks = await _context.Tasks.ToListAsync();
+            var query = _context.Tasks.AsQueryable();
+
+            if (completed.HasValue) 
+            {
+                query = query.Where(t => t.IsCompleted == completed.Value);
+            }
+
+            var tasks = await query.ToListAsync();
 
             return tasks.Select(t => new TaskReadDto
             {
