@@ -2,7 +2,6 @@
 using Project_Tracker_C_.Data;
 using Project_Tracker_C_.Dtos;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.CompilerServices;
 
 namespace Project_Tracker_C_.Services
 {
