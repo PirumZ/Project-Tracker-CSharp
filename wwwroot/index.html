@@ -17,13 +17,13 @@
                         <a class="nav-link active" aria-current="page" href="#">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">About Us</a>
+                        <a class="nav-link" href="/about.html">About Us</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Contact Us</a>
+                        <a class="nav-link" href="/contact.html">Contact Us</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Settings</a>
+                        <a class="nav-link" href="settings.html">Settings</a>
                     </li>
                 </ul>
 
@@ -32,21 +32,60 @@
     </nav>
 
 
-
-
-
     <div class="container-md mt-5 pt-4">
-        <h1>Tasks</h1>
-        <div class="row">
-            <div class="d-flex gap-2">
-                <button type="button" class="btn btn-secondary">Add Task</button>
-                <button onclick="loadTasks()" class="btn btn-info">Load Tasks</button>
-                <button type="button" class="btn btn-success">Update Task</button>
-                <button type="button" class="btn btn-danger">Remove Task</button>
-            </div>
-        </div>
 
-        <ul id="taskList" class="list-group mt-4"></ul>
+        <h1 class="mb-4">Tasks</h1>
+
+        <form class="mb-4">
+
+            <div class="mb-3">
+                <label for="taskName" class="form-label">Task Name</label>
+
+                <div class="w-50">
+                    <input type="text"
+                           class="form-control"
+                           id="taskName"
+                           placeholder="Enter task name">
+
+                </div>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="radio"
+                       name="compStat"
+                       id="isComplete">
+
+                <label class="form-check-label" for="isComplete">
+                    Complete
+                </label>
+            </div>
+
+            <div class="form-check mb-3">
+                <input class="form-check-input"
+                       type="radio"
+                       name="compStat"
+                       id="notComplete">
+
+                <label class="form-check-label" for="notComplete">
+                    Not Complete
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Add Task
+            </button>
+
+            <button type="button"
+                    onclick="loadTasks()"
+                    class="btn btn-info">
+                Load Tasks
+            </button>
+
+        </form>
+
+        <ul id="taskList" class="list-group"></ul>
+
     </div>
     <script>
         async function loadTasks() {
@@ -59,11 +98,11 @@
 
             tasks.forEach(task => {
                 taskList.innerHTML += `
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span>${task.title}</span>
-                                <span>${task.isCompleted ? "✅" : "❌"}</span>
-                            </li>
-                        `;
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>${task.title}</span>
+                                    <span>${task.isCompleted ? "✅" : "❌"}</span>
+                                </li>
+                            `;
             });
         }
     </script>
