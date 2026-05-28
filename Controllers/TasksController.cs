@@ -36,12 +36,22 @@ namespace Project_Tracker_C_.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(TaskCreateDto dto)
         {
+            if (!ModelState.IsValid) 
+            {
+                return ValidationProblem(ModelState);
+            }
+
             return Ok(await _service.Create(dto));
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, TaskUpdateDto dto)
         {
+            if (!ModelState.IsValid) 
+            {
+                return ValidationProblem(ModelState);
+            }
+
             var result = await _service.Update(id, dto);
 
             if (result == null)

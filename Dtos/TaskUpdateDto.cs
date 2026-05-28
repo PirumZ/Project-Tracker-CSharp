@@ -5,8 +5,9 @@ namespace Project_Tracker_C_.Dtos
     public class TaskUpdateDto
     {
         [Required]
+        [MinLength(3)]
         [MaxLength(100)]
-        public string Title { get; set; }
-        public bool IsCompleted { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public bool IsCompleted { get; set; } = false; 
     }
 }

@@ -51,6 +51,7 @@
 
                 </div>
             </div>
+            <div id="errorMessage" class="text-danger mb-3"></div>
             <button type="submit" class="btn btn-primary">
                 Add Task
             </button>
@@ -209,11 +210,35 @@
                 body: JSON.stringify(task)
             });
 
-            if (response.ok) {
+            if (!response.ok)
+            {
+                const errorData = await response.json();
+
+                console.log(errorData);
+
+                const errorDiv = document.getElementById("errorMessage");
+
+                const message =
+                    errorData?.errors?.Title?.[0] ??
+                    errorData?.Title?.[0] ??
+                    "Invalid input";
+
+                errorDiv.textContent = message;
+
+                setTimeout(() => {
+                    errorDiv.textContent = "";
+                }, 2000);
+
+                return;
+            }
+
+            if (response.ok) { 
 
                 titleInput.value = "";
+                errorDiv.textContent = "";
+                loadTasks();
             }
-            loadTasks();
+            
         }
 
 
