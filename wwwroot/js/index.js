@@ -52,7 +52,7 @@
                 method: "DELETE"
             });
 
-        loadTasks();
+            loadTasks();
                 });
 
 
@@ -62,27 +62,17 @@
 
                 toggleItem.addEventListener("click", async () => {
 
-            await fetch(`/api/tasks/${task.id}`, {
-                method: "PUT",
-                headers:
-                {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    title: task.title,
-                    isCompleted: !task.isCompleted
-                })
-            });
-
-        loadTasks();
-
+                    await fetch(`/api/tasks/${task.id}/toggle`, {
+                        method: "PATCH"
+                    });
+                    loadTasks();
                 });
 
 
 
         const updateItem = document.createElement("li");
         updateItem.innerHTML =
-        `<a class="dropdown-item text-warning">Update<a />`;
+        `<a class="dropdown-item text-warning">Update<a/>`;
 
                 updateItem.addEventListener("click", async () => {
 

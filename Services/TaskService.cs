@@ -72,6 +72,40 @@ namespace Project_Tracker_C_.Services
             };
         }
 
+        public async Task<TaskReadDto?> Toggle(int id) 
+        {
+            var task = await GetById(id);
+            if (task == null) { return null; }
+
+            task.IsCompleted = !task.IsCompleted;
+
+            await _context.SaveChangesAsync();
+
+            return new TaskReadDto 
+            {
+                Id = task.Id,
+                Title = task.Title,
+                IsCompleted = task.IsCompleted
+            };
+        }
+
+        public async Task<TaskReadDto?> UpdateTitle(int id, TaskUpdateDto dto) 
+        {
+            var task = await GetById(id);
+            if (task == null) { return null; }
+
+            task.Title = dto.Title;
+
+            await _context.SaveChangesAsync();
+
+            return new TaskReadDto
+            {
+                Id = task.Id,
+                Title = task.Title,
+                IsCompleted = task.IsCompleted
+            };
+        }
+
         public async Task<bool> Delete(int id) 
         {
             TaskItem? task = await GetById(id);

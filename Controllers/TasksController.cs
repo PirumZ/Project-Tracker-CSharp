@@ -64,6 +64,22 @@ namespace Project_Tracker_C_.Controllers
             }
         }
 
+        [HttpPatch("{id}/toggle")]
+        public async Task<ActionResult<TaskReadDto>> ToggleTask(int id) 
+        {
+            var updatedTask = await _service.Toggle(id);
+
+            if (updatedTask == null) { return NotFound(); }
+
+            return Ok(updatedTask);
+        }
+
+//[HttpPatch("{id}/title")]
+  //      public async Task<ActionResult<TaskReadDto>> UpdateTitle(int id, UpdateTitleDto dto)
+
+
+
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(int id)
         {
