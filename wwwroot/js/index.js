@@ -80,15 +80,14 @@
 
             if (!newTitle) { return; }
 
-            await fetch(`/api/tasks/${task.id}`, {
-                        method: "PUT",
+            await fetch(`/api/tasks/${task.id}/title`, {
+                        method: "PATCH",
                         headers:
                         {
                             "Content-Type": "application/json"
                         },
                         body: JSON.stringify({
                             title: newTitle,
-                            isCompleted: task.isCompleted
                         })
                     });
 

@@ -45,24 +45,7 @@ namespace Project_Tracker_C_.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, TaskUpdateDto dto)
-        {
-            if (!ModelState.IsValid) 
-            {
-                return ValidationProblem(ModelState);
-            }
-
-            var result = await _service.Update(id, dto);
-
-            if (result == null)
-            {
-                return NotFound();
-            }
-            else 
-            { 
-                return Ok(result);
-            }
-        }
+        
 
         [HttpPatch("{id}/toggle")]
         public async Task<ActionResult<TaskReadDto>> ToggleTask(int id) 
@@ -74,8 +57,15 @@ namespace Project_Tracker_C_.Controllers
             return Ok(updatedTask);
         }
 
-//[HttpPatch("{id}/title")]
-  //      public async Task<ActionResult<TaskReadDto>> UpdateTitle(int id, UpdateTitleDto dto)
+        [HttpPatch("{id}/title")]
+        public async Task<ActionResult<TaskReadDto>> UpdateTitle(int id, UpdateTitleDto dto) 
+        {
+            var task = await _service.UpdateTitle(id, dto);
+
+            if (task == null) { return NotFound(); }
+
+            return Ok(task);
+        }
 
 
 

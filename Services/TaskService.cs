@@ -54,23 +54,7 @@ namespace Project_Tracker_C_.Services
             return await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
         }
 
-        public async Task<TaskReadDto?> Update(int id, TaskUpdateDto dto) 
-        {
-            var task = await GetById(id);
-            if (task == null) { return null; }
-
-            task.Title = dto.Title;
-            task.IsCompleted = dto.IsCompleted;
-
-            await _context.SaveChangesAsync();
-
-            return new TaskReadDto
-            {
-                Id = task.Id,
-                Title = task.Title,
-                IsCompleted = task.IsCompleted
-            };
-        }
+        
 
         public async Task<TaskReadDto?> Toggle(int id) 
         {
@@ -89,7 +73,7 @@ namespace Project_Tracker_C_.Services
             };
         }
 
-        public async Task<TaskReadDto?> UpdateTitle(int id, TaskUpdateDto dto) 
+        public async Task<TaskReadDto?> UpdateTitle(int id, UpdateTitleDto dto) 
         {
             var task = await GetById(id);
             if (task == null) { return null; }
