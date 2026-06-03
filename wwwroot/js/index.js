@@ -1,5 +1,47 @@
 ﻿console.log("script loaded");
 
+const renameModal = new bootstrap.Modal(document.getElementById("renameModal"));
+const renameInput = document.getElementById("renameInput");
+const renameConfirmBtn = document.getElementById("renameConfirmBtn");
+
+renameConfirmBtn.addEventListener("click", async () => {
+
+    const newTitle = renameInput.value.trim();
+    const errorDiv = document.getElementById("renameError");
+
+    if (!newTitle) {
+        errorDiv.textContent = "Title cannot be empty.";
+        return;
+    }
+
+    errorDiv.textContent = "";
+
+    const response = await fetch(`/api/tasks/${currentRenameTaskId}/title`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ title: newTitle })
+    });
+
+    if (!response.ok) return;
+
+    const updated = await response.json();
+
+    updateTaskTitleUI(currentRenameTaskId, updated.title);
+
+    renameModal.hide();
+
+});
+
+document.getElementById("renameModal").addEventListener("hidden.bs.modal", () => {
+    renameInput.value = "";
+    document.getElementById("renameError").textContent = "";
+    currentRenameTaskId = null;
+});
+
+let currentRenameTaskId = null;
+
 async function loadTasks() {
         const response = await fetch("/api/tasks");
         const tasks = await response.json();
@@ -89,8 +131,6 @@ async function renameTask(taskId)
 {
     console.log("renameTask called:", taskId);
 
-    const newTitle = prompt("New title:");
-    if (!newTitle) return;
 
     const response = await fetch(`/api/tasks/${taskId}/title`, {
         method: "PATCH",
@@ -131,10 +171,10 @@ function createTaskElement(task)
     const li = document.createElement("li");
 
     li.dataset.taskId = task.id;
-    li.className = "list-group-item d-flex justify-content between align-items-center";
+    li.className = "list-group-item d-flex justify-content-between align-items-center mb-2";
 
     const left = document.createElement("div");
-    left.className = "d-flex align-items center gap-2";
+    left.className = "d-flex align-items-center gap-3";
 
     const titleSpan = document.createElement("span");
     titleSpan.textContent = task.title;
@@ -181,9 +221,11 @@ function createTaskElement(task)
         e.preventDefault();
         e.stopPropagation();
 
+        currentRenameTaskId = task.id;
+        renameInput.value = task.title;
         console.log("rename clicked");
 
-        await renameTask(task.id);
+        renameModal.show();
     });
 
     menu.append(renameItem, toggleItem, deleteItem);
