@@ -1,165 +1,199 @@
 ﻿console.log("script loaded");
 
-    async function loadTasks() {
-            const response = await fetch("/api/tasks");
-    const tasks = await response.json();
+async function loadTasks() {
+        const response = await fetch("/api/tasks");
+        const tasks = await response.json();
 
-    const taskList = document.getElementById("taskList");
+        const taskList = document.getElementById("taskList");
+        taskList.innerHTML = "";
 
-    taskList.innerHTML = "";
+        tasks.forEach(task => {
+            taskList.append(createTaskElement(task));
+        });
+}
 
-            tasks.forEach(task => {
+function updateTaskTitleUI(taskId, newTitle)
+{
+    const li = document.querySelector(`[data-task-id="${taskId}"]`);
+    if (!li) return;
+
+    const titleSpan = li.querySelector("span");
+    if (!titleSpan) return;
+
+    titleSpan.textContent = newTitle;
+}
+
+function updateTaskStatusUI(taskId, isCompleted)
+{
+    const li = document.querySelector(`[data-task-id="${taskId}"]`);
+    if (!li) return;
+
+    const spans = li.querySelectorAll("span");
+    if (spans.length < 2) return;
+
+    const statusSpan = spans[1]; 
+
+    statusSpan.textContent = isCompleted ? "✅" : "❌";
+}
+
+async function addTask(event) {
+    event.preventDefault();
+
+    const titleInput = document.getElementById("taskName");
+
+    
+    const task = {
+        title: titleInput.value,
+    };
+
+    const response = await fetch("/api/tasks", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(task)
+    });
+
+    if (!response.ok)
+    {
+        const errorData = await response.json();
+
+        console.log(errorData);
+
+        const errorDiv = document.getElementById("errorMessage");
+
+        const message =
+            errorData?.errors?.Title?.[0] ??
+            errorData?.Title?.[0] ??
+            "Invalid input";
+
+        errorDiv.textContent = message;
+
+        setTimeout(() => {
+            errorDiv.textContent = "";
+        }, 2000);
+
+        return;
+    }
+
+    if (response.ok) { 
+
+        titleInput.value = "";
+        loadTasks();
+    }
+            
+}
 
 
-                const li = document.createElement("li");
+async function renameTask(taskId)
+{
+    console.log("renameTask called:", taskId);
 
-    li.dataset.taskID = task.id;
+    const newTitle = prompt("New title:");
+    if (!newTitle) return;
 
-    li.className = "list-group-item d-flex justify-content-between align-items-center";
+    const response = await fetch(`/api/tasks/${taskId}/title`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ title: newTitle })
+    });
+
+    console.log("fetch done.");
+
+    if (!response.ok) return;
+
+    const updated = await response.json();
+
+
+    console.log("updateTaskTileUI about to  run");
+    updateTaskTitleUI(taskId, updated.title);
+}
+
+async function toggleTask(taskId) {
+    const response = await fetch(`/api/tasks/${taskId}/toggle`, {
+        method: "PATCH"
+    });
+
+    if (!response.ok) {
+        console.error("Failed to toggle task");
+        return;
+    }
+
+    const updatedTask = await response.json();
+
+    updateTaskStatusUI(taskId, updatedTask.isCompleted);
+}
+
+function createTaskElement(task)
+{
+    const li = document.createElement("li");
+
+    li.dataset.taskId = task.id;
+    li.className = "list-group-item d-flex justify-content between align-items-center";
 
     const left = document.createElement("div");
-    left.className = "d-flex align-items-center gap-2";
+    left.className = "d-flex align-items center gap-2";
 
     const titleSpan = document.createElement("span");
-
     titleSpan.textContent = task.title;
 
     const statusSpan = document.createElement("span");
-
     statusSpan.textContent = task.isCompleted ? "✅" : "❌";
 
     const dropdownDiv = document.createElement("div");
-
     dropdownDiv.className = "dropdown";
 
     const button = document.createElement("button");
-
     button.className = "btn btn-sm btn-secondary";
     button.setAttribute("data-bs-toggle", "dropdown");
     button.textContent = "⋮";
 
     const menu = document.createElement("ul");
-
     menu.className = "dropdown-menu";
 
     const deleteItem = document.createElement("li");
-    deleteItem.innerHTML =
-    `<a class="dropdown-item text-danger">Delete<a />`;
+    deleteItem.innerHTML = `<a class="dropdown-item text-danger">Delete</a>`;
+    deleteItem.querySelector("a").addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-                deleteItem.addEventListener("click", async () => {
+        const response = await fetch(`/api/tasks/${task.id}`, {
+            method: "DELETE"
+        });
 
-            await fetch(`/api/tasks/${task.id}`, {
-                method: "DELETE"
-            });
+        if (!response.ok) return;
 
-            loadTasks();
-                });
+        const row = document.querySelector(`[data-task-id="${task.id}"]`);
+        row?.remove();
+    });
 
+    const toggleItem = document.createElement("li");
+    toggleItem.innerHTML = `<a class="dropdown-item text-secondary">Toggle</a>`;
+    toggleItem.querySelector("a").addEventListener("click", async () => {
+        await toggleTask(task.id);
+    });
 
-        const toggleItem = document.createElement("li");
-        toggleItem.innerHTML =
-        `<a class="dropdown-item text-secondary">Toggle</a>`;
+    const renameItem = document.createElement("li");
+    renameItem.innerHTML = `<a class="dropdown-item text-success">Rename</a>`;
+    renameItem.querySelector("a").addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-                toggleItem.addEventListener("click", async () => {
+        console.log("rename clicked");
 
-                    await fetch(`/api/tasks/${task.id}/toggle`, {
-                        method: "PATCH"
-                    });
-                    loadTasks();
-                });
+        await renameTask(task.id);
+    });
 
+    menu.append(renameItem, toggleItem, deleteItem);
+    dropdownDiv.append(button, menu);
 
+    left.append(titleSpan, statusSpan);
+    li.append(left, dropdownDiv);
 
-        const updateItem = document.createElement("li");
-        updateItem.innerHTML =
-        `<a class="dropdown-item text-warning">Update<a/>`;
-
-                updateItem.addEventListener("click", async () => {
-
-                    const newTitle = prompt("New title:");
-
-            if (!newTitle) { return; }
-
-            await fetch(`/api/tasks/${task.id}/title`, {
-                        method: "PATCH",
-                        headers:
-                        {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            title: newTitle,
-                        })
-                    });
-
-                    loadTasks();
-
-                });
-
-                menu.append(deleteItem);
-                menu.append(toggleItem);
-                menu.append(updateItem);
-
-                dropdownDiv.append(button);
-                dropdownDiv.append(menu);
-
-                left.append(titleSpan);
-                left.append(statusSpan);
-                
-                li.append(left);
-                li.append(dropdownDiv);
-
-                taskList.append(li);
-            }
-            );
-        }
-
-        async function addTask(event) {
-            event.preventDefault();
-
-            const titleInput = document.getElementById("taskName");
-
-    
-            const task = {
-                title: titleInput.value,
-            };
-
-            const response = await fetch("/api/tasks", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(task)
-            });
-
-            if (!response.ok)
-            {
-                const errorData = await response.json();
-
-                console.log(errorData);
-
-                const errorDiv = document.getElementById("errorMessage");
-
-                const message =
-                    errorData?.errors?.Title?.[0] ??
-                    errorData?.Title?.[0] ??
-                    "Invalid input";
-
-                errorDiv.textContent = message;
-
-                setTimeout(() => {
-                    errorDiv.textContent = "";
-                }, 2000);
-
-                return;
-            }
-
-            if (response.ok) { 
-
-                titleInput.value = "";
-                loadTasks();
-            }
-            
-        }
+    return li;
+}
 
 
 // Listener stuff
